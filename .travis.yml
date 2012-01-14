@@ -3,7 +3,7 @@ rvm:
   - 1.9.2
   - 1.9.3
   - jruby
-script: rake test
+script: bundle exec rake test
 notifications:
   email: false
   irc:
