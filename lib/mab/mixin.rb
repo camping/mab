@@ -114,7 +114,7 @@ module Mab
     def mab(&blk)
       prev = defined?(@mab_context) && @mab_context
       ctx = @mab_context = mab_options[:context].new
-      res = instance_eval(&blk) if block_given?
+      res = instance_eval(&blk)
       ctx.empty? ? res : ctx.join
     ensure
       @mab_context = prev
