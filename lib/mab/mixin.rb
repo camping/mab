@@ -61,8 +61,9 @@ module Mab
           end
           @done = true
         elsif content
-          @content = CGI.escapeHTML(content.to_s)
-          @done = true
+          content = content.to_s
+          @content = CGI.escapeHTML(content)
+          @done = !content.empty?
         elsif attrs
           @done = true
         end
@@ -131,12 +132,12 @@ module Mab
     module HTMLDefiners
       def define_tag(meth, tag)
         class_eval <<-EOF
-          def #{meth}(content = "", attrs = {}, &blk)
+          def #{meth}(content = "", attrs = nil, &blk)
             if content.is_a?(Hash)
               attrs = content
               content = ""
             end
-            tag!(:#{tag}, content.to_s, attrs, &blk)
+            tag!(:#{tag}, content, attrs, &blk)
           end
         EOF
       end

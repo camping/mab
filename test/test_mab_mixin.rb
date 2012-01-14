@@ -70,6 +70,14 @@ class TestMabMixin < MiniTest::Unit::TestCase
     end
   end
 
+  def test_html5_chaining
+    @obj.extend Mab::Mixin::HTML5
+
+    assert_equal '<p class="intro" id="first">Hello</p>', @obj.mab {
+      p.intro.first!('Hello')
+    }
+  end
+
   def test_xml
     @obj.extend Mab::Mixin
     @obj.mab_options[:xml] = true
