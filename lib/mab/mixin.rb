@@ -4,10 +4,13 @@ module Mab
   module Mixin
     class Error < StandardError; end
     class Tag
-      def initialize(name, options, context)
+      attr_reader :name, :options, :context, :instance
+
+      def initialize(name, options, context, instance = nil)
         @name = name
         @options = options
         @context = context
+        @instance = instance
         @done = false
         @content = false
       end
@@ -52,7 +55,7 @@ module Mab
 
         if block_given?
           before = @context.size
-          res = yield
+          res = @instance.mab_block(self, &blk)
           if @context.size == before
             @content = res.to_s
           else
@@ -94,7 +97,7 @@ module Mab
 
     def tag!(name, content = nil, attrs = nil, &blk)
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
-      tag = Tag.new(name, mab_options, ctx)
+      tag = Tag.new(name, mab_options, ctx, self)
       ctx << tag
       tag.insert(content, attrs, &blk)
     end
@@ -119,6 +122,10 @@ module Mab
 
     def mab_options
       @mab_options ||= {:context => Array}
+    end
+
+    def mab_block(tag)
+      yield
     end
 
     module XML

@@ -18,7 +18,7 @@ module Mab
         else
           super($/ + "  " * @indentation)
         end
-        super(str)
+        super
       end
     end
 
@@ -26,13 +26,9 @@ module Mab
       @mab_options ||= super.update(:context => Context)
     end
 
-    def tag!(*, &blk)
-      if blk
-        super do
-          @mab_context.with_indent(&blk)
-        end
-      else
-        super
+    def mab_block(tag, &blk)
+      super do
+        @mab_context.with_indent(&blk)
       end
     end
   end
