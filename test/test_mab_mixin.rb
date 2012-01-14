@@ -78,6 +78,19 @@ class TestMabMixin < MiniTest::Unit::TestCase
     }
   end
 
+  def test_mab_attributes
+    @obj.extend Mab::Mixin
+    def @obj.mab_attributes(tag, hash)
+      { :nope => 123 }
+    end
+
+    assert_equal '<p nope="123"><br nope="123"></p>', @obj.mab {
+      tag! :p, :hello => :world do
+        tag!(:br).klass(:hello => :world)
+      end
+    }
+  end
+
   def test_xml
     @obj.extend Mab::Mixin
     @obj.mab_options[:xml] = true

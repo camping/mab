@@ -78,7 +78,8 @@ module Mab
       def to_str() to_s end
 
       def attrs_to_s
-        attributes.inject("") do |res, (name, value)|
+        attrs = @instance.mab_attributes(self, attributes)
+        attrs.inject("") do |res, (name, value)|
           if value
             value = (value == true) ? name : CGI.escapeHTML(value.to_s)
             res << " #{name}=\"#{value}\""
@@ -126,6 +127,10 @@ module Mab
 
     def mab_block(tag)
       yield
+    end
+
+    def mab_attributes(tag, attrs)
+      attrs
     end
 
     module XML
