@@ -51,6 +51,6 @@ Mab::Builder.new({}, Person.new('BitPuffin')) do
   else
     p @name
   end
-end
+end.to_s
 ```
 
