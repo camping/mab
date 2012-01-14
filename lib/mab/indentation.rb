@@ -31,6 +31,12 @@ module Mab
         @mab_context.with_indent(&blk)
       end
     end
+
+    def reindent!(str)
+      str.split(/\r?\n/).each do |s|
+        text! s
+      end
+    end
   end
 end
 

@@ -29,5 +29,20 @@ HTML
       end
     }
   end
+
+  def test_reindent
+    res = <<HTML.strip
+<p>
+  Hello
+  World
+</p>
+HTML
+
+    assert_equal res, @obj.mab {
+      tag! :p do
+        reindent! "Hello\nWorld"
+      end
+    }
+  end
 end
 
