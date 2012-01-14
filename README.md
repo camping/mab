@@ -10,7 +10,7 @@ Extending an object:
 
 ```ruby
 r = Object.new
-r.extend Mab::Core::HTML5
+r.extend Mab::Mixin::HTML5
 r.extend Mab::Indentation
 
 r.mab do

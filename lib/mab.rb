@@ -1,4 +1,4 @@
-require 'mab/core'
+require 'mab/mixin'
 require 'mab/indentation'
 require 'mab/builder'
 

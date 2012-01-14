@@ -1,7 +1,7 @@
 require 'cgi'
 
 module Mab
-  module Core
+  module Mixin
     class Error < StandardError; end
     class Tag
       def initialize(name, options, context)
@@ -121,7 +121,7 @@ module Mab
     end
 
     module XML
-      include Core
+      include Mixin
 
       def mab_options
         @mab_options ||= super.update(:xml => true)
@@ -167,7 +167,7 @@ module Mab
 
     module HTML5
       extend HTMLDefiners
-      include Core
+      include Mixin
 
       define_tags %w[a abbr acronym address applet article aside audio b
         basefont bdi bdo big blockquote body button canvas caption

@@ -4,7 +4,7 @@ class TestMabIndentation < MiniTest::Unit::TestCase
   def setup
     super
     @obj = Object.new
-    @obj.extend Mab::Core
+    @obj.extend Mab::Mixin
     @obj.extend Mab::Indentation
   end
 

@@ -1,13 +1,13 @@
 require 'helper'
 
-class TestMabCore < MiniTest::Unit::TestCase
+class TestMabMixin < MiniTest::Unit::TestCase
   def setup
     super
     @obj = Object.new
   end
 
   def test_tag
-    @obj.extend Mab::Core
+    @obj.extend Mab::Mixin
 
     assert_equal '<br>', @obj.mab {
       tag! :br
@@ -37,7 +37,7 @@ class TestMabCore < MiniTest::Unit::TestCase
   end
 
   def test_escaping
-    @obj.extend Mab::Core
+    @obj.extend Mab::Mixin
 
     assert_equal '<p>&amp;</p>', @obj.mab {
       tag! :p, '&'
@@ -51,19 +51,19 @@ class TestMabCore < MiniTest::Unit::TestCase
   end
 
   def test_chaining
-    @obj.extend Mab::Core
+    @obj.extend Mab::Mixin
 
     assert_equal '<p class="intro" id="first">Hello</p>', @obj.mab {
       tag!(:p).intro.first!('Hello')
     }
 
-    assert_raises(Mab::Core::Error) do
+    assert_raises(Mab::Mixin::Error) do
       @obj.mab do
         tag!(:p).intro('Hello').first!('Hello')
       end
     end
 
-    assert_raises(Mab::Core::Error) do
+    assert_raises(Mab::Mixin::Error) do
       @obj.mab do
         tag!(:p).intro(:class => 'bar').first!('Hello')
       end
@@ -71,7 +71,7 @@ class TestMabCore < MiniTest::Unit::TestCase
   end
 
   def test_xml
-    @obj.extend Mab::Core
+    @obj.extend Mab::Mixin
     @obj.mab_options[:xml] = true
 
     assert_equal '<br /><br></br><br>hello</br>', @obj.mab {
@@ -82,7 +82,7 @@ class TestMabCore < MiniTest::Unit::TestCase
   end
 
   def test_html5
-    @obj.extend Mab::Core::HTML5
+    @obj.extend Mab::Mixin::HTML5
     assert_equal '<!DOCTYPE html><html><body><p></p><br></body></html>', @obj.mab {
       doctype!
       html do
@@ -93,17 +93,17 @@ class TestMabCore < MiniTest::Unit::TestCase
       end
     }
 
-    assert_raises Mab::Core::Error do
+    assert_raises Mab::Mixin::Error do
       @obj.mab { br { } }
     end
 
-    assert_raises Mab::Core::Error do
+    assert_raises Mab::Mixin::Error do
       @obj.mab { br "hello" }
     end
   end
 
   def test_xhtml5
-    @obj.extend Mab::Core::XHTML5
+    @obj.extend Mab::Mixin::XHTML5
     assert_equal '<!DOCTYPE html><html><body><p></p><br /></body></html>', @obj.mab {
       doctype!
       html do
@@ -114,17 +114,17 @@ class TestMabCore < MiniTest::Unit::TestCase
       end
     }
 
-    assert_raises Mab::Core::Error do
+    assert_raises Mab::Mixin::Error do
       @obj.mab { br { } }
     end
 
-    assert_raises Mab::Core::Error do
+    assert_raises Mab::Mixin::Error do
       @obj.mab { br "hello" }
     end
   end
 
   def test_core_xml
-    @obj.extend Mab::Core::XML
+    @obj.extend Mab::Mixin::XML
     assert_equal '<br />', @obj.mab {
       tag! :br
     }

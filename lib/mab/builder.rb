@@ -1,6 +1,6 @@
 module Mab
   class SimpleBuilder
-    include Core
+    include Mixin
 
     def initialize(assigns = {}, helper = nil, &blk)
       @_helper = helper
