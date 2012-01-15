@@ -26,10 +26,11 @@ module Mab
       @mab_options ||= super.update(:context => Context)
     end
 
-    def mab_block(tag, &blk)
-      super do
-        @mab_context.with_indent(&blk)
+    def mab_done(tag)
+      if blk = tag.block
+        tag.block = proc { @mab_context.with_indent(&blk) }
       end
+      super
     end
 
     def reindent!(str)

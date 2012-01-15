@@ -4,7 +4,9 @@ module Mab
   module Mixin
     class Error < StandardError; end
     class Tag
-      attr_reader :name, :options, :context, :instance
+      attr_accessor :name, :content, :block
+      attr_reader :options, :context, :instance
+      attr_writer :attributes
 
       def initialize(name, options, context, instance = nil)
         @name = name
@@ -54,14 +56,7 @@ module Mab
         merge_attributes(attrs) if attrs
 
         if block_given?
-          before = @context.size
-          res = @instance.mab_block(self, &blk)
-          if @context.size == before
-            @content = res.to_s
-          else
-            @content = nil
-            @context << "</#{@name}>"
-          end
+          @block = blk
           @done = true
         elsif content
           content = content.to_s
@@ -71,6 +66,20 @@ module Mab
           @done = true
         end
 
+        @instance.mab_done(self) if @done
+
+        if @block
+          before = @context.size
+          res = @block.call
+
+          if @context.size == before
+            @content = res.to_s
+          else
+            @content = nil
+            @context << "</#{@name}>"
+          end
+        end
+
         self
       end
 
@@ -78,8 +87,7 @@ module Mab
       def to_str() to_s end
 
       def attrs_to_s
-        attrs = @instance.mab_attributes(self, attributes)
-        attrs.inject("") do |res, (name, value)|
+        attributes.inject("") do |res, (name, value)|
           if value
             value = (value == true) ? name : CGI.escapeHTML(value.to_s)
             res << " #{name}=\"#{value}\""
@@ -100,6 +108,7 @@ module Mab
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
       tag = Tag.new(name, mab_options, ctx, self)
       ctx << tag
+      mab_insert(tag)
       tag.insert(content, attrs, &blk)
     end
 
@@ -121,16 +130,14 @@ module Mab
       @mab_context = prev
     end
 
+    def mab_insert(tag)
+    end
+
+    def mab_done(tag)
+    end
+
     def mab_options
       @mab_options ||= {:context => Array}
-    end
-
-    def mab_block(tag)
-      yield
-    end
-
-    def mab_attributes(tag, attrs)
-      attrs
     end
 
     module XML

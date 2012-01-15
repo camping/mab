@@ -78,16 +78,41 @@ class TestMabMixin < MiniTest::Unit::TestCase
     }
   end
 
-  def test_mab_attributes
+  def test_mab_done
     @obj.extend Mab::Mixin
-    def @obj.mab_attributes(tag, hash)
-      { :nope => 123 }
+    def @obj.mab_done(tag)
+      tag.attributes = { :nope => 123 }
     end
 
     assert_equal '<p nope="123"><br nope="123"></p>', @obj.mab {
       tag! :p, :hello => :world do
         tag!(:br).klass(:hello => :world)
       end
+    }
+  end
+
+  def test_mab_done_ignore_block
+    @obj.extend Mab::Mixin
+    def @obj.mab_done(tag)
+      tag.block = nil
+      tag.content = ''
+    end
+
+    assert_equal '<p></p>', @obj.mab {
+      tag! :p do
+        tag!(:br).klass(:hello => :world)
+      end
+    }
+  end
+
+  def test_mab_insert
+    @obj.extend Mab::Mixin
+    def @obj.mab_insert(tag)
+      tag.name = :nope
+    end
+
+    assert_equal '<nope>', @obj.mab {
+      tag! :br
     }
   end
 
