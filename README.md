@@ -1,7 +1,20 @@
 Mab (Markup as Ruby)
 ====================
 
-Mab is 
+Mab let's you write HTML in plain Ruby:
+
+```ruby
+doctype!
+html do
+  head do
+    link :rel => 'stylesheet', :href => 'style.css'
+    script :src => 'jquery.js'
+  end
+  body :id => :frontpage do
+    h1 'Hello World', :class => :main
+  end
+end
+```
 
 
 Syntax
@@ -32,7 +45,7 @@ doctype!
 html do
   head do
     link :rel => 'stylesheet', :href => 'style.css'
-    script :src => 'jquery'
+    script :src => 'jquery.js'
   end
   body :id => :frontpage do
     h1 'Hello World', :class => :main
@@ -55,7 +68,7 @@ Which results in:
 </html>
 ```
 
-Notice how Mab knows that SCRIPT-tag must have content, so although you didn't
+Notice how Mab knows that script tag must have content, so although you didn't
 specify anything it closed the tag for you.
 
 ### 2. Element Classes and IDs
