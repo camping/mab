@@ -77,7 +77,7 @@ module Mab
             @content = res.to_s
           else
             @content = nil
-            @context << "</#{@name}>"
+            @instance.mab_insert("</#{@name}>")
           end
         end
 
@@ -98,7 +98,7 @@ module Mab
       end
 
       def to_s
-        if !@options[:joining] && @context[@pos]
+        if !@context.joining? && @context[@pos]
           @context[@pos] = nil
           @context.children -= 1
         end
@@ -110,33 +110,38 @@ module Mab
     end
 
     class Context < Array
-      attr_accessor :children
+      attr_accessor :children, :options
 
       def initialize
         @children = 0
-      end
-
-      def changed?
-        @children.zero?
+        @joining = false
+        @options = {}
       end
 
       def <<(str)
         @children += 1
         super(str)
       end
+
+      def join(*)
+        @joining = true
+        super
+      end
+
+      def joining?
+        @joining
+      end
     end
 
     def tag!(name, content = nil, attrs = nil, &blk)
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
       tag = Tag.new(name, mab_options, ctx, self)
-      ctx << tag
       mab_insert(tag)
       tag.insert(content, attrs, &blk)
     end
 
     def text!(str)
-      ctx = @mab_context || raise(Error, "Text can only be written within a `mab { }`-block")
-      ctx << str
+      mab_insert(str)
     end
 
     def text(str)
@@ -145,24 +150,23 @@ module Mab
 
     def mab(&blk)
       prev = defined?(@mab_context) && @mab_context
-      ctx = @mab_context = mab_options[:context].new
-      mab_options[:joining] = false
+      ctx = @mab_context = Context.new
       res = instance_eval(&blk)
-      mab_options[:joining] = true
       ctx.empty? ? res : ctx.join
     ensure
-      mab_options[:joining] = true
       @mab_context = prev
     end
 
     def mab_insert(tag)
+      ctx = @mab_context || raise(Error, 'mab { }-block required')
+      ctx << tag
     end
 
     def mab_done(tag)
     end
 
     def mab_options
-      @mab_options ||= {:context => Context}
+      @mab_options ||= {}
     end
 
     module XML

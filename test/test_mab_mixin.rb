@@ -108,7 +108,8 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_mab_insert
     @obj.extend Mab::Mixin
     def @obj.mab_insert(tag)
-      tag.name = :nope
+      tag.name = :nope if tag.respond_to?(:name=)
+      super
     end
 
     assert_equal '<nope>', @obj.mab {

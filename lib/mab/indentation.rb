@@ -1,35 +1,24 @@
 module Mab
   module Indentation
-    class Context < Mixin::Context
-      def initialize
-        @indentation = 0
+     def mab_insert(str)
+      if i = @mab_context.options[:indentation]
+        super([$/ + "  " * i, str])
+      else
+        @mab_context.options[:indentation] = 0
         super
       end
-
-      def with_indent
-        @indentation += 1
-        yield
-      ensure
-        @indentation -= 1
-      end
-
-      def <<(str)
-        indent = if empty?
-          "  " * @indentation
-        else
-          $/ + "  " * @indentation
-        end
-        super([indent, str])
-      end
-    end
-
-    def mab_options
-      @mab_options ||= super.update(:context => Context)
     end
 
     def mab_done(tag)
       if blk = tag.block
-        tag.block = proc { @mab_context.with_indent(&blk) }
+        tag.block = proc do
+          begin
+            @mab_context.options[:indentation] += 1
+            blk.call
+          ensure
+            @mab_context.options[:indentation] -= 1
+          end
+        end
       end
       super
     end
