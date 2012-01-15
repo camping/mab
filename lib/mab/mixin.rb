@@ -6,7 +6,7 @@ module Mab
     class Tag
       attr_accessor :name, :content, :block
       attr_reader :options, :context, :instance
-      attr_writer :attributes
+      attr_writer :attributes, :pos
 
       def initialize(name, options, context, instance = nil)
         @name = name
@@ -15,6 +15,7 @@ module Mab
         @instance = instance
         @done = false
         @content = false
+        @pos = @context.size
       end
 
       def attributes
@@ -69,10 +70,10 @@ module Mab
         @instance.mab_done(self) if @done
 
         if @block
-          before = @context.size
+          before = @context.children
           res = @block.call
 
-          if @context.size == before
+          if before >= @context.children
             @content = res.to_s
           else
             @content = nil
@@ -97,10 +98,31 @@ module Mab
       end
 
       def to_s
+        if !@options[:joining] && @context[@pos]
+          @context[@pos] = nil
+          @context.children -= 1
+        end
         res = "<#{@name}#{attrs_to_s}"
         res << (@options[:xml] && @content == false ? ' />' : '>')
         res << "#{@content}</#{@name}>" if @content
         res
+      end
+    end
+
+    class Context < Array
+      attr_accessor :children
+
+      def initialize
+        @children = 0
+      end
+
+      def changed?
+        @children.zero?
+      end
+
+      def <<(str)
+        @children += 1
+        super(str)
       end
     end
 
@@ -124,9 +146,12 @@ module Mab
     def mab(&blk)
       prev = defined?(@mab_context) && @mab_context
       ctx = @mab_context = mab_options[:context].new
+      mab_options[:joining] = false
       res = instance_eval(&blk)
+      mab_options[:joining] = true
       ctx.empty? ? res : ctx.join
     ensure
+      mab_options[:joining] = true
       @mab_context = prev
     end
 
@@ -137,7 +162,7 @@ module Mab
     end
 
     def mab_options
-      @mab_options ||= {:context => Array}
+      @mab_options ||= {:context => Context}
     end
 
     module XML

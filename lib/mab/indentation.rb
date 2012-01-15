@@ -1,8 +1,9 @@
 module Mab
   module Indentation
-    class Context < Array
+    class Context < Mixin::Context
       def initialize
         @indentation = 0
+        super
       end
 
       def with_indent
@@ -13,12 +14,12 @@ module Mab
       end
 
       def <<(str)
-        if empty?
-          super("  " * @indentation)
+        indent = if empty?
+          "  " * @indentation
         else
-          super($/ + "  " * @indentation)
+          $/ + "  " * @indentation
         end
-        super
+        super([indent, str])
       end
     end
 

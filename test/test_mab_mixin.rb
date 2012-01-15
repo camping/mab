@@ -116,6 +116,25 @@ class TestMabMixin < MiniTest::Unit::TestCase
     }
   end
 
+  def test_stringification
+    @obj.extend Mab::Mixin
+
+    assert_equal '<h1>My name is: <span>Bob</span></h1>', @obj.mab {
+      tag!(:h1) do
+        "My name is: #{tag!(:span, 'Bob')}"
+      end
+    }
+
+    assert_equal '<h1><div><span>Hello</span> | <span>Hello</span></div></h1>', @obj.mab {
+      tag!(:h1) do
+        s = tag!(:span, 'Hello')
+        tag!(:div) do
+          [s, s].join(' | ')
+        end
+      end
+    }
+  end
+
   def test_xml
     @obj.extend Mab::Mixin
     @obj.mab_options[:xml] = true

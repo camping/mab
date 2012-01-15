@@ -44,5 +44,23 @@ HTML
       end
     }
   end
+
+  def test_stringification
+    res = <<HTML.strip
+<h1>
+  <div><span>Hello</span> | <span>Hello</span></div>
+</h1>
+HTML
+
+    assert_equal res, @obj.mab {
+      tag!(:h1) do
+        s = tag!(:span, 'Hello')
+        tag!(:div) do
+          [s, s].join(' | ')
+        end
+      end
+
+    }
+  end
 end
 
