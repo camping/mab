@@ -1,6 +1,6 @@
 require 'mab'
 
 def mab(&blk)
-  Mab::Builder.new({}, self, &blk)
+  Mab::PrettyBuilder.new({}, self, &blk)
 end
 
