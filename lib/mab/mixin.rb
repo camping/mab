@@ -198,8 +198,8 @@ module Mab
 
       def define_empty_tag(meth, tag)
         class_eval <<-EOF
-          def #{meth}(attrs = {})
-            if !attrs.is_a?(Hash) || block_given?
+          def #{meth}(attrs = nil)
+            if (!attrs.nil? && !attrs.is_a?(Hash)) || block_given?
               raise Error, "#{meth} doesn't allow content"
             end
             tag!(:#{tag}, attrs)
