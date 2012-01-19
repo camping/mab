@@ -166,6 +166,10 @@ class TestMabMixin < MiniTest::Unit::TestCase
     assert_raises Mab::Mixin::Error do
       @obj.mab { br "hello" }
     end
+
+    assert_equal '<input class="text" value="name">', @obj.mab {
+      input.text :value => 'name'
+    }
   end
 
   def test_xhtml5
