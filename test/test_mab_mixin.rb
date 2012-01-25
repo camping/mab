@@ -175,7 +175,10 @@ class TestMabMixin < MiniTest::Unit::TestCase
       @obj.mab { br "hello" }
     end
 
-    assert_equal '<input class="text" value="name">', @obj.mab {
+    assert_includes [
+      '<input class="text" value="name">',
+      '<input value="name" class="text">',
+    ], @obj.mab {
       input.text :value => 'name'
     }
   end
