@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary       = 'Markup as Ruby'
 
   s.require_paths = %w(lib)
-  s.files         = Dir["lib/**/*"]
+  s.files         = Dir["**/*"]
 
   s.add_development_dependency('rake')
   s.add_development_dependency('minitest')
