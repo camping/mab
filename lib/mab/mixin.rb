@@ -4,9 +4,8 @@ module Mab
   module Mixin
     class Error < StandardError; end
     class Tag
-      attr_accessor :name, :content, :block
+      attr_accessor :name, :content, :attributes, :block
       attr_reader :options, :context, :instance
-      attr_writer :attributes, :pos
 
       def initialize(name, options, context, instance = nil)
         @name = name
@@ -15,46 +14,40 @@ module Mab
         @instance = instance
         @done = false
         @content = false
+        @attributes = {}
         @pos = @context.size
       end
 
-      def attributes
-        @attributes ||= {}
-      end
-
-      def merge_attributes(attrs)
-        if defined?(@attributes)
+      def merge_attributes(*args)
+        args.each do |attrs|
           @attributes.merge!(attrs)
-        else
-          @attributes = attrs
         end
       end
 
-      def method_missing(name, content = nil, attrs = nil, &blk)
+      def method_missing(name, *args, &blk)
         name = name.to_s
 
         if name[-1] == ?!
-          attributes[:id] = name[0..-2]
+          @attributes[:id] = name[0..-2]
         else
-          if attributes.has_key?(:class)
-            attributes[:class] += " #{name}"
+          if @attributes.has_key?(:class)
+            @attributes[:class] += " #{name}"
           else
-            attributes[:class] = name
+            @attributes[:class] = name
           end
         end
 
-        insert(content, attrs, &blk)
+        insert(*args, &blk)
       end
 
-      def insert(content = nil, attrs = nil, &blk)
+      def insert(*args, &blk)
         raise Error, "This tag is already closed" if @done
 
-        if content.is_a?(Hash)
-          attrs = content
-          content = nil
+        if !args[0].is_a?(Hash)
+          content = args.shift
         end
 
-        merge_attributes(attrs) if attrs
+        merge_attributes(*args) if !args.empty?
 
         if block_given?
           @block = blk
@@ -63,7 +56,7 @@ module Mab
           content = content.to_s
           @content = CGI.escapeHTML(content)
           @done = !content.empty?
-        elsif attrs
+        elsif !args.empty?
           @done = true
         end
 
@@ -133,11 +126,11 @@ module Mab
       end
     end
 
-    def tag!(name, content = nil, attrs = nil, &blk)
+    def tag!(name, *args, &blk)
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
       tag = Tag.new(name, mab_options, ctx, self)
       mab_insert(tag)
-      tag.insert(content, attrs, &blk)
+      tag.insert(*args, &blk)
     end
 
     def text!(str)
@@ -180,12 +173,9 @@ module Mab
     module HTMLDefiners
       def define_tag(meth, tag)
         class_eval <<-EOF
-          def #{meth}(content = "", attrs = nil, &blk)
-            if content.is_a?(Hash)
-              attrs = content
-              content = ""
-            end
-            tag!(:#{tag}, content, attrs, &blk)
+          def #{meth}(*args, &blk)
+            args.unshift "" if args.empty? || args[0].is_a?(Hash)
+            tag!(:#{tag}, *args, &blk)
           end
         EOF
       end
@@ -198,11 +188,11 @@ module Mab
 
       def define_empty_tag(meth, tag)
         class_eval <<-EOF
-          def #{meth}(attrs = nil)
-            if (!attrs.nil? && !attrs.is_a?(Hash)) || block_given?
+          def #{meth}(*args)
+            if (!args.empty? && !args[0].is_a?(Hash)) || block_given?
               raise Error, "#{meth} doesn't allow content"
             end
-            tag!(:#{tag}, attrs)
+            tag!(:#{tag}, *args)
           end
         EOF
       end

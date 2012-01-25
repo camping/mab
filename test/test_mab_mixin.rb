@@ -36,6 +36,14 @@ class TestMabMixin < MiniTest::Unit::TestCase
     }
   end
 
+  def test_multile_attrs
+    @obj.extend Mab::Mixin
+
+    assert_equal '<br class="intro" id="yay">', @obj.mab {
+      tag! :br, { :class => "intro" }, { :id => "yay" }
+    }
+  end
+
   def test_escaping
     @obj.extend Mab::Mixin
 
