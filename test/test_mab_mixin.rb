@@ -158,7 +158,6 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_html5
     @obj.extend Mab::Mixin::HTML5
     assert_equal '<!DOCTYPE html><html><body><p></p><br></body></html>', @obj.mab {
-      doctype!
       html do
         body do
           p
@@ -186,7 +185,6 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_xhtml5
     @obj.extend Mab::Mixin::XHTML5
     assert_equal '<!DOCTYPE html><html><body><p></p><br /></body></html>', @obj.mab {
-      doctype!
       html do
         body do
           p

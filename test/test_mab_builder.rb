@@ -49,7 +49,7 @@ class TestMabBuilder < MiniTest::Unit::TestCase
       end
     end
 
-    assert_equal "<html>\n  <body>\n    <h1>Nice</h1>\n  </body>\n</html>", b.to_s
+    assert_equal "<!DOCTYPE html>\n<html>\n  <body>\n    <h1>Nice</h1>\n  </body>\n</html>", b.to_s
   end
 end
 
