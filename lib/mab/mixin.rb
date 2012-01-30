@@ -4,7 +4,7 @@ module Mab
   module Mixin
     class Error < StandardError; end
     class Tag
-      attr_accessor :name, :content, :attributes, :block
+      attr_accessor :name, :content, :attributes, :block, :empty
       attr_reader :options, :context, :instance
 
       def initialize(name, options, context, instance = nil)
@@ -13,8 +13,11 @@ module Mab
         @context = context
         @instance = instance
         @done = false
-        @content = false
+
+        @content = nil
+        @first = true
         @attributes = {}
+
         @pos = @context.size
       end
 
@@ -49,21 +52,32 @@ module Mab
       def insert(*args, &blk)
         raise Error, "This tag is already closed" if @done
 
-        if !args[0].is_a?(Hash)
+        if !args.empty? && !args[0].is_a?(Hash)
           content = args.shift
+          raise Error, "Tag doesn't allow content" if @content == false
+        elsif @first
+          @content = false
         end
 
-        merge_attributes(*args) if !args.empty?
+        @first = false
+
+        if content
+          @content = CGI.escapeHTML(content.to_s)
+          @done = true
+        end
+
+        if !args.empty?
+          merge_attributes(*args)
+          @done = true
+        end
 
         if block_given?
           @block = blk
           @done = true
-        elsif content
-          content = content.to_s
-          @content = CGI.escapeHTML(content)
-          @done = !content.empty?
-        elsif !args.empty?
-          @done = true
+        end
+
+        if @content && @block
+          raise Error, "Both content and block is not allowed"
         end
 
         @instance.mab_done(self) if @done
@@ -75,7 +89,7 @@ module Mab
           if before >= @context.children
             @content = res.to_s
           else
-            @content = nil
+            @content = false
             @instance.mab_insert("</#{@name}>")
           end
         end
@@ -101,9 +115,10 @@ module Mab
           @context[@pos] = nil
           @context.children -= 1
         end
+
         res = "<#{@name}#{attrs_to_s}"
-        res << (@options[:xml] && @content == false ? ' />' : '>')
-        res << "#{@content}</#{@name}>" if @content
+        res << (@options[:xml] && (!@block && @content == false) ? ' />' : '>')
+        res << "#{@content}</#{@name}>" if @content != false
         res
       end
     end
@@ -180,7 +195,7 @@ module Mab
       def define_tag(meth, tag)
         class_eval <<-EOF
           def #{meth}(*args, &blk)
-            args.unshift "" if args.empty? || args[0].is_a?(Hash)
+            args.unshift nil if args.empty? || args[0].is_a?(Hash)
             tag!(:#{tag}, *args, &blk)
           end
         EOF
@@ -234,7 +249,7 @@ module Mab
 
       def html(*args, &blk)
         doctype!
-        args.unshift "" if args.empty? || args[0].is_a?(Hash)
+        args.unshift nil if args.empty? || args[0].is_a?(Hash)
         tag!(:html, *args, &blk)
       end
     end

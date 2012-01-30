@@ -13,6 +13,10 @@ class TestMabMixin < MiniTest::Unit::TestCase
       tag! :br
     }
 
+    assert_equal '<br></br>', @obj.mab {
+      tag! :br, nil
+    }
+
     assert_equal '<p>Hello</p>', @obj.mab {
       tag! :p, 'Hello'
     }
@@ -34,6 +38,14 @@ class TestMabMixin < MiniTest::Unit::TestCase
     assert_equal '<br>', @obj.mab {
       tag! :br, :class => nil
     }
+
+    assert_raises Mab::Mixin::Error do
+      @obj.mab do
+        tag! :p, "content" do
+          "and block"
+        end
+      end
+    end
   end
 
   def test_multile_attrs
@@ -62,18 +74,24 @@ class TestMabMixin < MiniTest::Unit::TestCase
     @obj.extend Mab::Mixin
 
     assert_equal '<p class="intro" id="first">Hello</p>', @obj.mab {
-      tag!(:p).intro.first!('Hello')
+      tag!(:p, nil).intro.first!('Hello')
     }
 
     assert_raises(Mab::Mixin::Error) do
       @obj.mab do
-        tag!(:p).intro('Hello').first!('Hello')
+        tag!(:p).intro.first!('Hello')
       end
     end
 
     assert_raises(Mab::Mixin::Error) do
       @obj.mab do
-        tag!(:p).intro(:class => 'bar').first!('Hello')
+        tag!(:p, nil).intro('Hello').first!('Hello')
+      end
+    end
+
+    assert_raises(Mab::Mixin::Error) do
+      @obj.mab do
+        tag!(:p, nil).intro(:class => 'bar').first!('Hello')
       end
     end
   end
@@ -188,6 +206,10 @@ class TestMabMixin < MiniTest::Unit::TestCase
 
     assert_raises Mab::Mixin::Error do
       @obj.mab { br "hello" }
+    end
+
+    assert_raises Mab::Mixin::Error do
+      @obj.mab { br.klass "hello" }
     end
 
     assert_includes [
