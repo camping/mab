@@ -113,6 +113,22 @@ class TestMabMixin < MiniTest::Unit::TestCase
     }
   end
 
+  def test_mab_done_wrap_block
+    @obj.extend Mab::Mixin
+    def @obj.mab_done(tag)
+      tag.block do |blk|
+        tag! :p, 'nice'
+        blk.call
+      end if tag.name == :body
+    end
+
+    assert_equal "<body><p>nice</p><br></body>", @obj.mab {
+      tag! :body do
+        tag! :br
+      end
+    }
+  end
+
   def test_mab_insert
     @obj.extend Mab::Mixin
     def @obj.mab_insert(tag)
