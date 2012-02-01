@@ -15,7 +15,6 @@ module Mab
         @done = false
 
         @content = nil
-        @first = true
         @attributes = {}
 
         @pos = @context.size
@@ -49,17 +48,18 @@ module Mab
         insert(*args, &blk)
       end
 
+      def insert_first(*args, &blk)
+        @content = false if args.empty? || args[0].is_a?(Hash)
+        insert(*args, &blk)
+      end
+
       def insert(*args, &blk)
         raise Error, "This tag is already closed" if @done
 
         if !args.empty? && !args[0].is_a?(Hash)
           content = args.shift
           raise Error, "Tag doesn't allow content" if @content == false
-        elsif @first
-          @content = false
         end
-
-        @first = false
 
         if content
           @content = CGI.escapeHTML(content.to_s)
@@ -151,7 +151,7 @@ module Mab
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
       tag = Tag.new(name, mab_options, ctx, self)
       mab_insert(tag)
-      tag.insert(*args, &blk)
+      tag.insert_first(*args, &blk)
     end
 
     def text!(str)
