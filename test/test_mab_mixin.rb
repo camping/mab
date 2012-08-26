@@ -74,24 +74,18 @@ class TestMabMixin < MiniTest::Unit::TestCase
     @obj.extend Mab::Mixin
 
     assert_equal '<p class="intro" id="first">Hello</p>', @obj.mab {
-      tag!(:p, nil).intro.first!('Hello')
+      tag!(:p).intro.first!('Hello')
     }
 
     assert_raises(Mab::Mixin::Error) do
       @obj.mab do
-        tag!(:p).intro.first!('Hello')
+        tag!(:p).intro('Hello').first!('Hello')
       end
     end
 
     assert_raises(Mab::Mixin::Error) do
       @obj.mab do
-        tag!(:p, nil).intro('Hello').first!('Hello')
-      end
-    end
-
-    assert_raises(Mab::Mixin::Error) do
-      @obj.mab do
-        tag!(:p, nil).intro(:class => 'bar').first!('Hello')
+        tag!(:p).intro(:class => 'bar').first!('Hello')
       end
     end
   end

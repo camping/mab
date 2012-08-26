@@ -4,7 +4,7 @@ module Mab
   module Mixin
     class Error < StandardError; end
     class Tag
-      attr_accessor :name, :content, :attributes, :block, :empty
+      attr_accessor :name, :content, :attributes, :block, :has_content
       attr_reader :options, :context, :instance
 
       def initialize(name, options, context, instance = nil)
@@ -15,6 +15,8 @@ module Mab
         @done = false
 
         @content = nil
+        @has_content = nil
+
         @attributes = {}
 
         @pos = @context.size
@@ -48,17 +50,13 @@ module Mab
         insert(*args, &blk)
       end
 
-      def insert_first(*args, &blk)
-        @content = false if args.empty? || args[0].is_a?(Hash)
-        insert(*args, &blk)
-      end
-
       def insert(*args, &blk)
         raise Error, "This tag is already closed" if @done
 
         if !args.empty? && !args[0].is_a?(Hash)
           content = args.shift
-          raise Error, "Tag doesn't allow content" if @content == false
+          raise Error, "Tag doesn't allow content" if @has_content == false
+          @has_content = true
         end
 
         if content
@@ -72,6 +70,8 @@ module Mab
         end
 
         if block_given?
+          raise Error, "Tag doesn't allow content" if @has_content == false
+          @has_content = true
           @block = blk
           @done = true
         end
@@ -89,7 +89,8 @@ module Mab
           if before >= @context.children
             @content = res.to_s
           else
-            @content = false
+            # Turn the node into just an opening tag.
+            @has_content = false
             @instance.mab_insert("</#{@name}>")
           end
         end
@@ -117,8 +118,8 @@ module Mab
         end
 
         res = "<#{@name}#{attrs_to_s}"
-        res << (@options[:xml] && (!@block && @content == false) ? ' />' : '>')
-        res << "#{@content}</#{@name}>" if @content != false
+        res << (@options[:xml] && !@block && !@has_content ? ' />' : '>')
+        res << "#{@content}</#{@name}>" if @has_content
         res
       end
     end
@@ -147,11 +148,15 @@ module Mab
       end
     end
 
-    def tag!(name, *args, &blk)
+    def mab_tag(name)
       ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
       tag = Tag.new(name, mab_options, ctx, self)
       mab_insert(tag)
-      tag.insert_first(*args, &blk)
+      tag
+    end
+
+    def tag!(name, *args, &blk)
+      mab_tag(name).insert(*args, &blk)
     end
 
     def text!(str)
@@ -195,8 +200,9 @@ module Mab
       def define_tag(meth, tag)
         class_eval <<-EOF
           def #{meth}(*args, &blk)
-            args.unshift nil if args.empty? || args[0].is_a?(Hash)
-            tag!(:#{tag}, *args, &blk)
+            tag = mab_tag(:#{tag})
+            tag.has_content = true
+            tag.insert(*args, &blk)
           end
         EOF
       end
@@ -209,11 +215,10 @@ module Mab
 
       def define_empty_tag(meth, tag)
         class_eval <<-EOF
-          def #{meth}(*args)
-            if (!args.empty? && !args[0].is_a?(Hash)) || block_given?
-              raise Error, "#{meth} doesn't allow content"
-            end
-            tag!(:#{tag}, *args)
+          def #{meth}(*args, &blk)
+            tag = mab_tag(:#{tag})
+            tag.has_content = false
+            tag.insert(*args, &blk)
           end
         EOF
       end
