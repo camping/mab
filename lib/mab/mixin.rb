@@ -246,12 +246,6 @@ module Mab
       def doctype!
         text! '<!DOCTYPE html>'
       end
-
-      def html(*args, &blk)
-        doctype!
-        args.unshift nil if args.empty? || args[0].is_a?(Hash)
-        tag!(:html, *args, &blk)
-      end
     end
 
     module XHTML5

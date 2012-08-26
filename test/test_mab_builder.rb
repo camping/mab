@@ -42,6 +42,7 @@ class TestMabBuilder < MiniTest::Unit::TestCase
 
   def test_pretty
     b = Mab::PrettyBuilder.new do
+      doctype!
       html do
         body do
           h1 "Nice"
