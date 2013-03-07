@@ -1,0 +1,6 @@
+content_for :page_heading do
+  h1 "Heading"
+end
+
+h2 "Sub"
+

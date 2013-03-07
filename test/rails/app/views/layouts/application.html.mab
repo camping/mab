@@ -1,0 +1,15 @@
+doctype!
+html do
+  head do
+    title "Dummy"
+  end
+
+  body do
+    text! yield :page_heading
+
+    div.content do
+      text! yield
+    end
+  end
+end
+

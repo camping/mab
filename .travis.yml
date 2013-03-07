@@ -3,7 +3,10 @@ rvm:
   - 1.9.2
   - 1.9.3
   - jruby
-script: bundle exec rake test
+env:
+  - "TASK=test:core"
+  - "TASK=test:rails RAILS=1"
+script: "bundle exec rake $TASK"
 notifications:
   email: false
   irc:
