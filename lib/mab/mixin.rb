@@ -4,33 +4,33 @@ module Mab
   module Mixin
     class Error < StandardError; end
     class Tag
-      attr_accessor :name, :content, :attributes, :block, :has_content
-      attr_reader :options, :context, :instance
+      attr_accessor :_name, :_content, :_attributes, :_block, :_has_content
+      attr_reader :_options, :_context, :_instance
 
       def initialize(name, options, context, instance = nil)
-        @name = name
-        @options = options
-        @context = context
-        @instance = instance
-        @done = false
+        @_name = name
+        @_options = options
+        @_context = context
+        @_instance = instance
+        @_done = false
 
-        @content = nil
-        @has_content = nil
+        @_content = nil
+        @_has_content = nil
 
-        @attributes = {}
+        @_attributes = {}
 
-        @pos = @context.size
+        @_pos = @_context.size
       end
 
-      def block
-        return @block unless block_given?
-        current = @block
-        @block = proc { yield current }
+      def _block
+        return @_block unless block_given?
+        current = @_block
+        @_block = proc { yield current }
       end
 
-      def merge_attributes(*args)
+      def _merge_attributes(*args)
         args.each do |attrs|
-          @attributes.merge!(attrs)
+          @_attributes.merge!(attrs)
         end
       end
 
@@ -38,60 +38,60 @@ module Mab
         name = name.to_s
 
         if name[-1] == ?!
-          @attributes[:id] = name[0..-2]
+          @_attributes[:id] = name[0..-2]
         else
-          if @attributes.has_key?(:class)
-            @attributes[:class] += " #{name}"
+          if @_attributes.has_key?(:class)
+            @_attributes[:class] += " #{name}"
           else
-            @attributes[:class] = name
+            @_attributes[:class] = name
           end
         end
 
-        insert(*args, &blk)
+        _insert(*args, &blk)
       end
 
-      def insert(*args, &blk)
-        raise Error, "This tag is already closed" if @done
+      def _insert(*args, &blk)
+        raise Error, "This tag is already closed" if @_done
 
         if !args.empty? && !args[0].is_a?(Hash)
           content = args.shift
-          raise Error, "Tag doesn't allow content" if @has_content == false
-          @has_content = true
+          raise Error, "Tag doesn't allow content" if @_has_content == false
+          @_has_content = true
         end
 
         if content
-          @content = CGI.escapeHTML(content.to_s)
-          @done = true
+          @_content = CGI.escapeHTML(content.to_s)
+          @_done = true
         end
 
         if !args.empty?
-          merge_attributes(*args)
-          @done = true
+          _merge_attributes(*args)
+          @_done = true
         end
 
         if block_given?
-          raise Error, "Tag doesn't allow content" if @has_content == false
-          @has_content = true
-          @block = blk
-          @done = true
+          raise Error, "Tag doesn't allow content" if @_has_content == false
+          @_has_content = true
+          @_block = blk
+          @_done = true
         end
 
-        if @content && @block
-          raise Error, "Both content and block is not allowed"
+        if @_content && @_block
+          raise Error, "Both content and _block is not allowed"
         end
 
-        @instance.mab_done(self) if @done
+        @_instance.mab_done(self) if @_done
 
-        if @block
-          before = @context.children
-          res = @block.call
+        if @_block
+          before = @_context.children
+          res = @_block.call
 
-          if before >= @context.children
-            @content = res.to_s
+          if before >= @_context.children
+            @_content = res.to_s
           else
             # Turn the node into just an opening tag.
-            @has_content = false
-            @instance.mab_insert("</#{@name}>")
+            @_has_content = false
+            @_instance.mab_insert("</#{@_name}>")
           end
         end
 
@@ -101,8 +101,8 @@ module Mab
       def to_ary() nil end
       def to_str() to_s end
 
-      def attrs_to_s
-        attributes.inject("") do |res, (name, value)|
+      def _attrs_to_s
+        @_attributes.inject("") do |res, (name, value)|
           if value
             value = (value == true) ? name : CGI.escapeHTML(value.to_s)
             res << " #{name}=\"#{value}\""
@@ -112,14 +112,14 @@ module Mab
       end
 
       def to_s
-        if !@context.joining? && @context[@pos]
-          @context[@pos] = nil
-          @context.children -= 1
+        if !@_context.joining? && @_context[@_pos]
+          @_context[@_pos] = nil
+          @_context.children -= 1
         end
 
-        res = "<#{@name}#{attrs_to_s}"
-        res << (@options[:xml] && !@block && !@has_content ? ' />' : '>')
-        res << "#{@content}</#{@name}>" if @has_content
+        res = "<#{@_name}#{_attrs_to_s}"
+        res << (@_options[:xml] && !@_block && !@_has_content ? ' />' : '>')
+        res << "#{@_content}</#{@_name}>" if @_has_content
         res
       end
     end
@@ -156,7 +156,7 @@ module Mab
     end
 
     def tag!(name, *args, &blk)
-      mab_tag(name).insert(*args, &blk)
+      mab_tag(name)._insert(*args, &blk)
     end
 
     def text!(str)
@@ -201,8 +201,8 @@ module Mab
         class_eval <<-EOF
           def #{meth}(*args, &blk)
             tag = mab_tag(:#{tag})
-            tag.has_content = true
-            tag.insert(*args, &blk)
+            tag._has_content = true
+            tag._insert(*args, &blk)
           end
         EOF
       end
@@ -217,8 +217,8 @@ module Mab
         class_eval <<-EOF
           def #{meth}(*args, &blk)
             tag = mab_tag(:#{tag})
-            tag.has_content = false
-            tag.insert(*args, &blk)
+            tag._has_content = false
+            tag._insert(*args, &blk)
           end
         EOF
       end

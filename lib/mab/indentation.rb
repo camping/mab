@@ -10,8 +10,8 @@ module Mab
     end
 
     def mab_done(tag)
-      if blk = tag.block
-        tag.block = proc do
+      if blk = tag._block
+        tag._block = proc do
           begin
             @mab_context.options[:indentation] += 1
             blk.call

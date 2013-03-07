@@ -77,6 +77,10 @@ class TestMabMixin < MiniTest::Unit::TestCase
       tag!(:p).intro.first!('Hello')
     }
 
+    assert_equal '<div class="content">Hello</div>', @obj.mab {
+      tag!(:div).content("Hello")
+    }
+
     assert_raises(Mab::Mixin::Error) do
       @obj.mab do
         tag!(:p).intro('Hello').first!('Hello')
@@ -101,7 +105,7 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_mab_done
     @obj.extend Mab::Mixin
     def @obj.mab_done(tag)
-      tag.attributes = { :nope => 123 }
+      tag._attributes = { :nope => 123 }
     end
 
     assert_equal '<p nope="123"><br nope="123"></p>', @obj.mab {
@@ -114,8 +118,8 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_mab_done_ignore_block
     @obj.extend Mab::Mixin
     def @obj.mab_done(tag)
-      tag.block = nil
-      tag.content = ''
+      tag._block = nil
+      tag._content = ''
     end
 
     assert_equal '<p></p>', @obj.mab {
@@ -128,10 +132,10 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_mab_done_wrap_block
     @obj.extend Mab::Mixin
     def @obj.mab_done(tag)
-      tag.block do |blk|
+      tag._block do |blk|
         tag! :p, 'nice'
         blk.call
-      end if tag.name == :body
+      end if tag._name == :body
     end
 
     assert_equal "<body><p>nice</p><br></body>", @obj.mab {
@@ -144,7 +148,7 @@ class TestMabMixin < MiniTest::Unit::TestCase
   def test_mab_insert
     @obj.extend Mab::Mixin
     def @obj.mab_insert(tag)
-      tag.name = :nope if tag.respond_to?(:name=)
+      tag._name = :nope if tag.respond_to?(:_name=)
       super
     end
 
