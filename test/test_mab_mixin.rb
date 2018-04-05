@@ -104,7 +104,7 @@ class TestMabMixin < Minitest::Test
 
   def test_mab_done
     @obj.extend Mab::Mixin
-    def @obj.mab_done(tag)
+    def @obj.mab_done(ctx, tag)
       tag._attributes = { :nope => 123 }
     end
 
@@ -117,7 +117,7 @@ class TestMabMixin < Minitest::Test
 
   def test_mab_done_ignore_block
     @obj.extend Mab::Mixin
-    def @obj.mab_done(tag)
+    def @obj.mab_done(ctx, tag)
       tag._block = nil
       tag._content = ''
     end
@@ -131,7 +131,7 @@ class TestMabMixin < Minitest::Test
 
   def test_mab_done_wrap_block
     @obj.extend Mab::Mixin
-    def @obj.mab_done(tag)
+    def @obj.mab_done(ctx, tag)
       blk = tag._block
       if blk && tag._name == :body
         tag._block = proc do
@@ -150,7 +150,7 @@ class TestMabMixin < Minitest::Test
 
   def test_mab_insert
     @obj.extend Mab::Mixin
-    def @obj.mab_insert(tag)
+    def @obj.mab_insert(ctx, tag)
       tag._name = :nope if tag.respond_to?(:_name=)
       super
     end

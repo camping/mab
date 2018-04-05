@@ -75,7 +75,7 @@ module Mab
           raise Error, "Both content and _block is not allowed"
         end
 
-        @_instance.mab_done(self) if @_done
+        @_instance.mab_done(@_context, self) if @_done
 
         if @_block
           before = @_context.children
@@ -86,7 +86,7 @@ module Mab
           else
             # Turn the node into just an opening tag.
             @_has_content = false
-            @_instance.mab_insert("</#{@_name}>")
+            @_instance.mab_insert(@_context, "</#{@_name}>")
           end
         end
 
@@ -143,25 +143,6 @@ module Mab
       end
     end
 
-    def mab_tag(name)
-      ctx = @mab_context || raise(Error, "Tags can only be written within a `mab { }`-block")
-      tag = Tag.new(name, mab_options, ctx, self)
-      mab_insert(tag)
-      tag
-    end
-
-    def tag!(name, *args, &blk)
-      mab_tag(name)._insert(*args, &blk)
-    end
-
-    def text!(str)
-      mab_insert(str)
-    end
-
-    def text(str)
-      text! CGI.escapeHTML(str.to_s)
-    end
-
     def mab(&blk)
       prev = defined?(@mab_context) && @mab_context
       ctx = @mab_context = Context.new
@@ -171,16 +152,37 @@ module Mab
       @mab_context = prev
     end
 
-    def mab_insert(tag)
-      ctx = @mab_context || raise(Error, 'mab { }-block required')
+    def mab_context
+      @mab_context || raise(Error, "`mab { }`-block required")
+    end
+
+    def mab_insert(ctx, tag)
       ctx << tag
     end
 
-    def mab_done(tag)
+    def mab_done(ctx, tag)
+    end
+
+    def mab_tag(ctx, name)
+      tag = Tag.new(name, mab_options, ctx, self)
+      mab_insert(ctx, tag)
+      tag
     end
 
     def mab_options
       @mab_options ||= {}
+    end
+
+    def tag!(name, *args, &blk)
+      mab_tag(mab_context, name)._insert(*args, &blk)
+    end
+
+    def text!(str)
+      mab_insert(mab_context, str)
+    end
+
+    def text(str)
+      text! CGI.escapeHTML(str.to_s)
     end
 
     module XML
@@ -195,7 +197,7 @@ module Mab
       def define_tag(meth, tag)
         class_eval <<-EOF
           def #{meth}(*args, &blk)
-            tag = mab_tag(:#{tag})
+            tag = mab_tag(mab_context, :#{tag})
             tag._has_content = true
             tag._insert(*args, &blk)
           end
@@ -211,7 +213,7 @@ module Mab
       def define_empty_tag(meth, tag)
         class_eval <<-EOF
           def #{meth}(*args, &blk)
-            tag = mab_tag(:#{tag})
+            tag = mab_tag(mab_context, :#{tag})
             tag._has_content = false
             tag._insert(*args, &blk)
           end

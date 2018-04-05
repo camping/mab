@@ -1,22 +1,22 @@
 module Mab
   module Indentation
-    def mab_insert(str)
-      if i = @mab_context.options[:indentation]
-        super([$/ + "  " * i, str])
+    def mab_insert(ctx, str)
+      if i = ctx.options[:indentation]
+        super(ctx, [$/ + "  " * i, str])
       else
-        @mab_context.options[:indentation] = 0
+        ctx.options[:indentation] = 0
         super
       end
     end
 
-    def mab_done(tag)
+    def mab_done(ctx, tag)
       if blk = tag._block
         tag._block = proc do
           begin
-            @mab_context.options[:indentation] += 1
+            ctx.options[:indentation] += 1
             blk.call
           ensure
-            @mab_context.options[:indentation] -= 1
+            ctx.options[:indentation] -= 1
           end
         end
       end
