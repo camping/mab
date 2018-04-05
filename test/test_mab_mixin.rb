@@ -1,6 +1,6 @@
-require 'helper'
+require_relative 'helper'
 
-class TestMabMixin < MiniTest::Unit::TestCase
+class TestMabMixin < Minitest::Test
   def setup
     super
     @obj = Object.new

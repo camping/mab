@@ -1,6 +1,6 @@
-require 'helper'
+require_relative 'helper'
 
-class TestMabBuilder < MiniTest::Unit::TestCase
+class TestMabBuilder < Minitest::Test
   def test_assigns
     b = Mab::Builder.new(:title => 'Mab') do
       title @title

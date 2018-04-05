@@ -16,6 +16,7 @@ module Mab
 
         @_content = nil
         @_has_content = nil
+        @_block = nil
 
         @_attributes = {}
 
@@ -239,7 +240,7 @@ module Mab
         center cite code colgroup datalist dd del details dfn dir div dl
         dt em fieldset figcaption figure font footer form frame frameset
         h1 h2 h3 h4 h5 h6 head header hgroup html i iframe ins kbd label
-        legend li link map mark math menu meter nav noframes noscript
+        legend li map mark math menu meter nav noframes noscript
         object ol optgroup option output p pre progress q rp rt ruby s
         samp script section select small span strike strong style sub
         summary sup svg table tbody td textarea tfoot th thead time

@@ -1,6 +1,6 @@
-require 'helper'
+require_relative 'helper'
 
-class TestMabKernelMethod < MiniTest::Unit::TestCase
+class TestMabKernelMethod < Minitest::Test
   def test_kernel_method
     require 'mab/kernel_method'
     @a = 1

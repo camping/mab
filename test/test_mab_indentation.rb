@@ -1,6 +1,6 @@
-require 'helper'
+require_relative 'helper'
 
-class TestMabIndentation < MiniTest::Unit::TestCase
+class TestMabIndentation < Minitest::Test
   def setup
     super
     @obj = Object.new

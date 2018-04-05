@@ -1,6 +1,6 @@
 module Mab
   module Indentation
-     def mab_insert(str)
+    def mab_insert(str)
       if i = @mab_context.options[:indentation]
         super([$/ + "  " * i, str])
       else

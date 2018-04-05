@@ -5,7 +5,7 @@ group :development do
 end
 
 group :test do
-  gem "minitest"
+  gem "minitest", "~> 5.11.0"
 end
 
 if ENV['RAILS']
