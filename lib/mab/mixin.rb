@@ -23,12 +23,6 @@ module Mab
         @_pos = @_context.size
       end
 
-      def _block
-        return @_block unless block_given?
-        current = @_block
-        @_block = proc { yield current }
-      end
-
       def _merge_attributes(*args)
         args.each do |attrs|
           @_attributes.merge!(attrs)
