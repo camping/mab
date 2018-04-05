@@ -173,6 +173,13 @@ module Mab
       @mab_options ||= {}
     end
 
+    def call!(obj, *args)
+      if obj.respond_to?(:to_mab_proc)
+        obj = obj.to_mab_proc
+      end
+      instance_exec(*args, &obj)
+    end
+
     def tag!(name, *args, &blk)
       mab_tag(mab_context, name)._insert(*args, &blk)
     end
