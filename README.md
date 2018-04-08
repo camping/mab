@@ -154,6 +154,7 @@ There's also `text!` which doesn't escape:
 p.author do
   text! '<strong>Written</strong> by'
   a 'Bluebie', :href => 'http://creativepony.com/'
+end
 ```
 
 
