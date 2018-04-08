@@ -73,9 +73,11 @@ class TestMabMixin < Minitest::Test
   def test_chaining
     @obj.extend Mab::Mixin
 
-    assert_equal '<p class="intro" id="first">Hello</p>', @obj.mab {
+    result = @obj.mab {
       tag!(:p).intro.first!('Hello')
     }
+    assert_match 'class="intro"', result
+    assert_match 'id="first"', result
 
     assert_equal '<div class="content">Hello</div>', @obj.mab {
       tag!(:div).content("Hello")
@@ -97,9 +99,23 @@ class TestMabMixin < Minitest::Test
   def test_html5_chaining
     @obj.extend Mab::Mixin::HTML5
 
-    assert_equal '<p class="intro" id="first">Hello</p>', @obj.mab {
+    result = @obj.mab {
       p.intro.first!('Hello')
     }
+
+    assert_match 'class="intro"', result
+    assert_match 'id="first"', result
+  end
+
+  def test_class_helper
+    @obj.extend Mab::Mixin
+
+    result = @obj.mab {
+      tag!(:p)._('intro', a: true, b: false).first!('Hello')
+    }
+
+    assert_match 'class="intro a"', result
+    assert_match 'id="first"', result
   end
 
   def test_mab_done

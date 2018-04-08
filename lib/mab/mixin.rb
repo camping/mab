@@ -17,6 +17,7 @@ module Mab
         @_content = nil
         @_has_content = nil
         @_block = nil
+        @_class_list = []
 
         @_attributes = {}
 
@@ -35,14 +36,26 @@ module Mab
         if name[-1] == ?!
           @_attributes[:id] = name[0..-2]
         else
-          if @_attributes.has_key?(:class)
-            @_attributes[:class] += " #{name}"
-          else
-            @_attributes[:class] = name
-          end
+          @_class_list << name
         end
 
         _insert(*args, &blk)
+      end
+
+      def _(*names, &blk)
+        keywords = names.pop if names[-1].is_a?(Hash)
+
+        names.each do |name|
+          @_class_list << name
+        end
+
+        keywords.each do |name, flag|
+          @_class_list << name if flag
+        end
+
+        _insert(&blk) if blk
+
+        self
       end
 
       def _insert(*args, &blk)
@@ -75,7 +88,10 @@ module Mab
           raise Error, "Both content and _block is not allowed"
         end
 
-        @_instance.mab_done(@_context, self) if @_done
+        if @_done
+          @_attributes[:class] ||= @_class_list.join(' ') if @_class_list.any?
+          @_instance.mab_done(@_context, self)
+        end
 
         if @_block
           before = @_context.children
