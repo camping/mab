@@ -111,6 +111,11 @@ class TestMabMixin < Minitest::Test
     @obj.extend Mab::Mixin
 
     result = @obj.mab {
+      tag!(:p)._('intro').first!('Hello')
+    }
+    assert_match 'class="intro"', result
+
+    result = @obj.mab {
       tag!(:p)._('intro', a: true, b: false).first!('Hello')
     }
 

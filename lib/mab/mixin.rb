@@ -51,7 +51,7 @@ module Mab
 
         keywords.each do |name, flag|
           @_class_list << name if flag
-        end
+        end if keywords
 
         _insert(&blk) if blk
 
