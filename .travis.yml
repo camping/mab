@@ -2,11 +2,8 @@ rvm:
   - ruby-2.5
   - ruby-2.0
   - jruby
-env:
-  - "TASK=test:core"
-script: "bundle exec rake $TASK"
 matrix:
   include:
     - rvm: ruby-2.5
-      env: "TASK=test:rails RAILS=1"
+      env: "RAILS=1"
 

@@ -3,6 +3,10 @@ require 'rake/testtask'
 task :default => :test
 task :test => 'test:core'
 
+if ENV['RAILS']
+  task :test => 'test:rails'
+end
+
 namespace 'test' do
   Rake::TestTask.new('core') do |t|
     t.libs << 'lib' << 'test'
