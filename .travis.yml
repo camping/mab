@@ -4,5 +4,9 @@ rvm:
   - jruby
 env:
   - "TASK=test:core"
-  - "TASK=test:rails RAILS=1"
 script: "bundle exec rake $TASK"
+matrix:
+  include:
+    - rvm: ruby-2.5
+      env: "TASK=test:rails RAILS=1"
+
