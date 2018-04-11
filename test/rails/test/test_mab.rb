@@ -2,7 +2,7 @@ require File.expand_path('../helper', __FILE__)
 
 class TestMab < ActionDispatch::IntegrationTest
   test "normal view" do
-    get "application/normal"
+    get "/normal"
     assert_response :success
     assert_template "application/normal"
     assert_template "layouts/application"
@@ -10,14 +10,14 @@ class TestMab < ActionDispatch::IntegrationTest
   end
 
   test "no layout" do
-    get "application/no_layout"
+    get "/no_layout"
     assert_response :success
     assert_template "application/normal"
     assert_equal "<h1>Hello Mab!</h1>", @response.body
   end
 
   test "variables" do
-    get "application/variables"
+    get "/variables"
     assert_response :success
     assert_template "application/variables"
     assert_template "layouts/application"
@@ -25,7 +25,7 @@ class TestMab < ActionDispatch::IntegrationTest
   end
 
   test "content for" do
-    get "application/content_for"
+    get "/content_for"
     assert_response :success
     assert_template "application/content_for"
     assert_template "layouts/application"

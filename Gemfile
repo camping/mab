@@ -9,6 +9,7 @@ group :test do
 end
 
 if ENV['RAILS']
-  gem 'rails', '= 3.2.12'
+  gem 'rails', '= 5.2.0'
+  gem 'rails-controller-testing'
 end
 
