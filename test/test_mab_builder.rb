@@ -21,6 +21,13 @@ class TestMabBuilder < Minitest::Test
     assert_equal "<p>name</p><br><p>address</p>", b.to_s
   end
 
+  def test_class_helper
+    b = Mab::Builder.new do
+      p!('foo', bar: false).("Hello")
+    end
+    assert_equal '<p class="foo">Hello</p>', b.to_s
+  end
+
   def test_helper
     obj = Class.new {
       def initialize

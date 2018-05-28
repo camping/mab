@@ -111,16 +111,23 @@ class TestMabMixin < Minitest::Test
     @obj.extend Mab::Mixin
 
     result = @obj.mab {
-      tag!(:p)._('intro').first!('Hello')
+      tag!(:p).!('intro').first!('Hello')
     }
     assert_match 'class="intro"', result
 
     result = @obj.mab {
-      tag!(:p)._('intro', a: true, b: false).first!('Hello')
+      tag!(:p).!('intro', a: true, b: false).first!('Hello')
     }
 
     assert_match 'class="intro a"', result
     assert_match 'id="first"', result
+
+    result = @obj.mab {
+      tag!(:p).!('intro', a: true, b: false).("World")
+    }
+
+    assert_match 'class="intro a"', result
+    assert_match '>World<', result
   end
 
   def test_mab_done

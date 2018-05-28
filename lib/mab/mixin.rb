@@ -42,7 +42,8 @@ module Mab
         _insert(*args, &blk)
       end
 
-      def _(*names, &blk)
+      # I'm not sure if this is a good idea or not
+      def !(*names, &blk)
         keywords = names.pop if names[-1].is_a?(Hash)
 
         names.each do |name|
@@ -108,6 +109,8 @@ module Mab
 
         self
       end
+
+      alias call _insert
 
       def to_ary() nil end
       def to_str() to_s end
@@ -224,6 +227,12 @@ module Mab
             tag._has_content = true
             tag._insert(*args, &blk)
           end
+
+          def #{meth}!(*args, &blk)
+            tag = mab_tag(mab_context, :#{tag})
+            tag._has_content = true
+            tag.!(*args, &blk)
+          end
         EOF
       end
 
@@ -239,6 +248,12 @@ module Mab
             tag = mab_tag(mab_context, :#{tag})
             tag._has_content = false
             tag._insert(*args, &blk)
+          end
+
+          def #{meth}!(*args, &blk)
+            tag = mab_tag(mab_context, :#{tag})
+            tag._has_content = false
+            tag.!(*args, &blk)
           end
         EOF
       end
